@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Pedidos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+    <main-header></main-header>
+
+    <main class="container my-5">
+        <div class="p-4 mb-4 bg-primary rounded-3 banner text-white">
+            <div class="container-fluid py-3 text-center">
+                <h1 class="display-5 fw-bold">Historial de Pedidos</h1>
+                <p class="fs-4">Aquí puedes ver un resumen de todos los pedidos confirmados.</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div id="historial-pedidos" class="d-grid gap-4">
+                    <p class="text-center text-muted">Cargando historial...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../components/navbar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarHistorialPedidos();
+
+            // Activar link del navbar
+            document.querySelectorAll('.navbar .nav-link').forEach(link => {
+                link.classList.remove('active');
+                if(link.href && link.href.includes('historial.html')) link.classList.add('active');
+            });
+        });
+
+        async function cargarHistorialPedidos() {
+            const container = document.getElementById('historial-pedidos');
+            const idUsuario = localStorage.getItem('id');
+
+            if (!idUsuario) {
+                container.innerHTML = '<div class="alert alert-danger text-center">No se pudo identificar al usuario.</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/empleado/pedidos/${idUsuario}`);
+                if (!response.ok) throw new Error('No se pudo cargar el historial.');
+                const historial = await response.json();
+
+                if (historial.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info text-center">Aún no has confirmado ningún pedido.</div>';
+                    return;
+                }
+
+                // Ordenar todo por fecha descendente
+                historial.sort((a, b) => new Date(b.fecha_pedido) - new Date(a.fecha_pedido));
+
+                // Agrupar por semana y mes
+                const pedidosPorSemana = {};
+                historial.forEach(item => {
+                    const key = `${item.mes}-${item.semana}`;
+                    if (!pedidosPorSemana[key]) pedidosPorSemana[key] = [];
+                    pedidosPorSemana[key].push(item);
+                });
+
+                // Ordenar las claves de forma cronológica
+                const clavesOrdenadas = Object.keys(pedidosPorSemana).sort((a, b) => {
+                    const [mesA, semanaA] = a.split('-');
+                    const [mesB, semanaB] = b.split('-');
+                    // Convertimos mes a número para ordenar correctamente
+                    const meses = { "Enero":1,"Febrero":2,"Marzo":3,"Abril":4,"Mayo":5,"Junio":6,"Julio":7,"Agosto":8,"Septiembre":9,"Octubre":10,"Noviembre":11,"Diciembre":12 };
+                    return (meses[mesB] - meses[mesA]) || (parseInt(semanaB) - parseInt(semanaA));
+                });
+
+                let html = '';
+                clavesOrdenadas.forEach(clave => {
+                    const items = pedidosPorSemana[clave];
+                    const [mes, semana] = clave.split('-');
+                    html += `<h4 class="mt-4">Semana ${semana} - ${mes}</h4>`;
+
+                    // Ordenar los pedidos internos por fecha descendente
+                    const pedidosAgrupados = {};
+                    items.forEach(item => {
+                        const idPedido = item.id_pedido;
+                        if (!pedidosAgrupados[idPedido]) {
+                            pedidosAgrupados[idPedido] = {
+                                fecha: new Date(item.fecha_pedido).toLocaleDateString('es-AR', { timeZone: 'UTC' }),
+                                items: []
+                            };
+                        }
+                        pedidosAgrupados[idPedido].items.push(item);
+                    });
+
+                    Object.values(pedidosAgrupados).forEach(pedido => {
+                        html += `
+                            <div class="card shadow-sm border-0 mb-3">
+                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                    <small>Realizado el: ${pedido.fecha}</small>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                        `;
+                        pedido.items.forEach(item => {
+                            html += `
+                                <li class="list-group-item d-flex align-items-center">
+                                    <img src="${item.imagen_url}" alt="${item.nombre_plato}" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">${item.nombre_plato}</h6>
+                                        <small class="text-muted">${item.categoria}</small>
+                                    </div>
+                                    <span class="badge bg-secondary rounded-pill">Cantidad: ${item.cantidad}</span>
+                                </li>
+                            `;
+                        });
+                        html += `
+                                </ul>
+                                <div class="card-footer text-end">
+                                    <button class="btn btn-sm btn-success" onclick="repetirPedido(${pedido.items[0].id_pedido})">Repetir pedido</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<div class="alert alert-danger text-center">Hubo un error al cargar tu historial.</div>`;
+            }
+        }
+
+        async function repetirPedido(idPedido) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/pedido/${idPedido}`);
+                const pedido = await response.json();
+                localStorage.setItem('pedido_repetido', JSON.stringify(pedido));
+                window.location.href = '../home/home.html';
+            } catch (error) {
+                console.error(error);
+                alert("No se pudo cargar el pedido para repetir.");
+            }
+        }
+    </script>
+</body>
+</html>

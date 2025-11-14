@@ -1,0 +1,113 @@
+/* --------------------------------------
+   GENERAL
+-------------------------------------- */
+body {
+    background-color: #f8f9fa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* --------------------------------------
+   SIDEBAR
+-------------------------------------- */
+.sidebar {
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    background-color: #ffffff !important;
+    border-right: 1px solid #e9ecef;
+    padding: 20px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* --------------------------------------
+   BOTONES DE LOS DÍAS
+-------------------------------------- */
+
+/* ✅ Antes no te funcionaba por usar .day-buttons-container cuando era ID */
+#day-buttons-container .list-group-item {
+    border: 0;
+    padding: 0.9rem 1.2rem;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 6px;
+    border-radius: 8px !important;
+    background-color: #f8f9fa;
+}
+
+#day-buttons-container .list-group-item:hover:not(.active) {
+    background-color: #e9ecef;
+    color: #343a40;
+}
+
+#day-buttons-container .list-group-item.active {
+    background-color: #26763E !important;
+    border-color: #26763E !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(38, 118, 62, 0.3);
+}
+
+/* --------------------------------------
+   BANNER
+-------------------------------------- */
+.banner {
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('../img/banner.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 2.8rem !important;
+    border-radius: 12px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* --------------------------------------
+   RESUMEN PEDIDO
+-------------------------------------- */
+#resumen-pedido-container .list-group-item {
+    background: #f0f2f3;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    padding: 6px 10px !important;
+}
+
+#resumen-pedido-container .badge {
+    font-size: 0.85rem;
+}
+
+/* --------------------------------------
+   CARDS DE MENÚ
+-------------------------------------- */
+.card {
+    border: 1px solid #e9ecef;
+    border-radius: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+    height: 180px;
+    object-fit: cover;
+    border-radius: 0.9rem 0.9rem 0 0;
+}
+
+.card.border-success {
+    box-shadow: 0 6px 15px rgba(25, 135, 84, 0.3);
+}
+
+/* --------------------------------------
+   BOTÓN CONFIRMAR
+-------------------------------------- */
+.btn-success {
+    background-color: #26763E;
+    border-color: #26763E;
+}
+
+.btn-success:hover {
+    background-color: #216033;
+    border-color: #216033;
+}
