@@ -194,5 +194,39 @@ router.get("/platos", (req, res) => {
   });
 });
 
+// BuffetI2T-back/routes/usuario.js
+
+// ✅ NUEVA RUTA: Modificar Perfil Básico (Usuario Común)
+router.put("/perfil/:email", (req, res) => {
+    const emailOriginal = req.params.email;
+    const { nombre, apellido, email } = req.body;
+
+    if (!nombre || !apellido || !email) {
+        return res.status(400).json({ error: "Faltan datos obligatorios." });
+    }
+
+    // Nota: Aquí se podría añadir lógica para cambiar contraseña si se incluyera en el cuerpo.
+    const sql = `
+        UPDATE usuario SET 
+            nombre = ?, apellido = ?, email = ?
+        WHERE email = ?`;
+        
+    const params = [nombre, apellido, email, emailOriginal];
+
+    connection.query(sql, params, (err, result) => {
+        if (err) {
+            console.error("Error al modificar perfil básico:", err);
+            // Error code 1062 (Duplicado)
+            if (err.errno === 1062) {
+                 return res.status(409).json({ error: "El nuevo email ya está registrado." });
+            }
+            return res.status(500).json({ error: "Error al modificar el perfil." });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Usuario no encontrado." });
+        }
+        res.json({ message: "OK" });
+    });
+});
 
 module.exports = router;

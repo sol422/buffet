@@ -18,11 +18,11 @@ router.get('/:id/items', (req, res) => {
     const sql = `
         SELECT 
             d.nombre AS dia_semana,
-            im.id_item_menu,
+            im.id AS id_item_menu,
             im.nombre_plato
         FROM menu_item_menu mim
         JOIN dia d ON mim.id_dia = d.id
-        JOIN item_menu im ON mim.id_item_menu = im.id_item_menu
+        JOIN item_menu im ON mim.id_item_menu = im.id
         WHERE mim.id_menu = ?;
     `;
 

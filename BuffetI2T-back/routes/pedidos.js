@@ -78,25 +78,22 @@ router.get('/empleado/pedidos/:id', (req, res) => {
 // ✅ GET /api/pedido/:id — Repetir pedido
 router.get('/:id', (req, res) => {
 
-    const id_pedido = req.params.id;
+   const id_pedido = req.params.id;
 
     const sql = `
         SELECT 
-            i.id_item_menu AS id,
-            i.nombre_plato AS nombre,
-            i.categoria,
-            i.descripcion,
-            i.imagen_url,
+            im.id, 
+            im.nombre, 
+            im.categoria,
+            im.descripcion,
+            im.imagen AS imagen_url, 
             pim.cantidad,
-            p.semana,
-            ms.dia_semana AS nombre_dia
+            p.semana
         FROM pedido p
-        JOIN pedido_item_menu pim ON p.id_pedido = pim.id_pedido
-        JOIN item_menu i ON pim.id_item_menu = i.id_item_menu
-        JOIN menu_semanal ms ON ms.id_item_menu = i.id_item_menu AND ms.semana = p.semana
-        WHERE p.id_pedido = ?
+        JOIN pedido_item_menu pim ON p.id = pim.id_pedido
+        JOIN item_menu im ON pim.id_item_menu = im.id
+        WHERE p.id = ?
     `;
-
     connection.query(sql, [id_pedido], (err, results) => {
         if (err) {
             console.error("Error al repetir pedido:", err);
