@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Compras</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="perfil-usuario.css">
+</head>
+<body class="bg-light">
+    <!-- user-header debe tener el botón Cerrar Sesión si no lo quieres aquí -->
+    <user-header></user-header> 
+
+    <main class="container my-5">
+        <div class="card p-4 shadow-sm">
+            <h1 class="mb-4">📜 Historial de Compras Personales</h1>
+            <p class="lead text-muted">Aquí puedes revisar los detalles de tus pedidos personales (no laborales).</p>
+        
+            <div id="historial-container" class="mt-4">
+                <p class="text-center text-muted">Cargando historial...</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="../components/navbar-usuario.js"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Se asume que la función de cerrar sesión está definida globalmente
+            cargarHistorialPersonal();
+        });
+        
+        // Función de utilidad global para cerrar sesión (si no está en navbar-usuario.js)
+        function cerrarSesion() {
+            // Utilizamos window.location.href = '../index.html'; como ruta de login/inicio
+            localStorage.removeItem('id');
+            localStorage.removeItem('rol');
+            window.location.href = '../index.html'; 
+        }
+
+        // ==========================================================
+        // FUNCIONES DE ESTADO Y VISUALIZACIÓN
+        // ==========================================================
+        const getEstadoBadge = (estado) => {
+            const estadoMayus = estado ? estado.toUpperCase() : 'PENDIENTE';
+            let clase = 'bg-secondary';
+            if (estadoMayus === 'FINALIZADO') clase = 'bg-success';
+            if (estadoMayus === 'PROCESO') clase = 'bg-info';
+            if (estadoMayus === 'CANCELADO') clase = 'bg-danger';
+            if (estadoMayus === 'PENDIENTE') clase = 'bg-warning text-dark';
+            return `<span class="badge ${clase}">${estadoMayus}</span>`;
+        }
+        
+        // Verifica si han pasado menos de 60 minutos (1 hora)
+        function esCancelablePorTiempo(fechaPedidoStr, estadoActual) {
+            const fechaPedido = new Date(fechaPedidoStr);
+            const ahora = new Date();
+            const diferenciaMs = ahora - fechaPedido;
+            const unaHoraMs = 60 * 60 * 1000;
+
+            // Es cancelable solo si no han pasado 60 minutos Y no está ya CANCELADO o FINALIZADO
+            return diferenciaMs < unaHoraMs && estadoActual !== 'CANCELADO' && estadoActual !== 'FINALIZADO';
+        }
+
+        async function cargarHistorialPersonal() {
+            const container = document.getElementById('historial-container');
+            const idUsuario = localStorage.getItem('id');
+
+            if (!idUsuario) {
+                container.innerHTML = '<div class="alert alert-danger text-center">Usuario no identificado.</div>';
+                return;
+            }
+
+            try {
+                // Endpoint que trae estado y fecha_pedido
+                const response = await fetch(`http://localhost:3000/api/usuario/historial-personal/${idUsuario}`);
+                
+                if (response.status === 404) {
+                    throw new Error('Ruta de la API no encontrada (404). Verifica el servidor.');
+                }
+                if (!response.ok) {
+                    throw new Error(`Error en la carga: ${response.statusText}`);
+                }
+                
+                const historial = await response.json();
+
+                if (historial.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info text-center">Aún no has realizado pedidos personales.</div>';
+                    return;
+                }
+                
+                // Agrupamos los ítems por ID de Pedido
+                const pedidosAgrupados = {};
+                historial.forEach(item => {
+                    const idPedido = item.id_pedido;
+                    if (!pedidosAgrupados[idPedido]) {
+                        pedidosAgrupados[idPedido] = {
+                            id: idPedido,
+                            fecha: new Date(item.fecha_pedido).toLocaleDateString('es-AR', { timeZone: 'UTC' }),
+                            fechaRaw: item.fecha_pedido, 
+                            estado: item.estado_pedido ? item.estado_pedido.toUpperCase() : 'PENDIENTE', 
+                            items: []
+                        };
+                    }
+                    pedidosAgrupados[idPedido].items.push(item);
+                });
+
+                let html = '';
+                // Ordenamos por ID de pedido descendente (más reciente primero)
+                Object.values(pedidosAgrupados).sort((a, b) => b.id - a.id).forEach(pedido => {
+                    
+                    const canCancel = esCancelablePorTiempo(pedido.fechaRaw, pedido.estado);
+                    const disabledAttr = canCancel ? '' : 'disabled';
+                    
+                    let botonTexto = 'Cancelar Pedido';
+                    if (pedido.estado === 'CANCELADO') botonTexto = 'Cancelado';
+                    else if (pedido.estado === 'FINALIZADO') botonTexto = 'Finalizado';
+                    else if (!esCancelablePorTiempo(pedido.fechaRaw, pedido.estado)) botonTexto = 'Tiempo Expirado';
+
+                    const botonClase = canCancel ? 'btn-outline-danger' : 'btn-outline-secondary';
+
+
+                    html += `
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <h6>Pedido #${pedido.id}</h6>
+                                <div class="d-flex align-items-center">
+                                    <small class="me-3">Estado: ${getEstadoBadge(pedido.estado)}</small>
+                                    <small>Fecha: ${pedido.fecha}</small>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                    `;
+                    
+                    pedido.items.forEach(item => {
+                        html += `
+                            <li class="list-group-item d-flex align-items-center">
+                                <img src="../img/${item.imagen_url || 'placeholder.jpg'}" onerror="this.onerror=null; this.src='https://placehold.co/50x50/cccccc/333333?text=Plato'" alt="${item.nombre_plato}" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">${item.nombre_plato}</h6>
+                                    <small class="text-muted">${item.categoria || 'Sin categoría'}</small>
+                                </div>
+                                <span class="badge bg-secondary rounded-pill">Cantidad: ${item.cantidad}</span>
+                            </li>
+                        `;
+                    });
+                    
+                    html += `
+                            </ul>
+                            <div class="card-footer text-end">
+                                <button 
+                                    class="btn btn-sm ${botonClase}" 
+                                    data-pedido-id="${pedido.id}"
+                                    onclick="${canCancel ? `cancelarPedido(${pedido.id})` : ''}"
+                                    ${disabledAttr}
+                                >
+                                    ${botonTexto}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error al cargar historial:", error);
+                container.innerHTML = `<div class="alert alert-danger text-center mt-4">Error al cargar el historial: ${error.message}</div>`;
+            }
+        }
+        
+        // ==========================================================
+        // FUNCIÓN DE CANCELACIÓN DEL PEDIDO (Manejo de la API)
+        // ==========================================================
+        async function cancelarPedido(idPedido) {
+            if (!confirm(`¿Estás seguro de que deseas cancelar el Pedido #${idPedido}? Solo se permite cancelar dentro de la primera hora.`)) {
+                return;
+            }
+
+            try {
+                // El endpoint verifica el tiempo transcurrido en el servidor
+                const response = await fetch(`http://localhost:3000/api/usuario/pedido-personal/estado/${idPedido}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado: 'CANCELADO' })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Fallo la cancelación en el servidor.');
+                }
+
+                // Recargar el historial para ver el estado actualizado
+                alert(`Pedido #${idPedido} cancelado con éxito.`);
+                cargarHistorialPersonal();
+
+            } catch (error) {
+                console.error("Error de cancelación:", error);
+                alert(`No se pudo cancelar el pedido: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

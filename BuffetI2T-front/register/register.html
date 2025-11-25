@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buffet - Registrarse</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="register.css">
+</head>
+<body>
+
+    <div class="container-fluid vh-100 d-flex justify-content-center align-items-center">
+        <div class="col-11 col-sm-8 col-md-6 col-lg-4">
+
+            <div class="card shadow-lg register-card">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <div class="text-center mb-4">
+                        <img src="../img/buffet_logo.png" alt="Logo Buffet" width="80">
+                        <h1 class="h3 my-3 fw-normal">Registro de Usuario</h1>
+                        <p class="text-muted">Completa tus datos para crear una cuenta.</p>
+                    </div>
+
+                    <form id="form-registro" onsubmit="validarDatos(event)">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="nombre" placeholder="Nombre" required>
+                            <label for="nombre">Nombre</label>
+                            <p class="text-danger small" id="nombre-error"></p>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="apellido" placeholder="Apellido" required>
+                            <label for="apellido">Apellido</label>
+                            <p class="text-danger small" id="apellido-error"></p>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="email" class="form-control" id="email" placeholder="E-mail" required>
+                            <label for="email">E-mail</label>
+                            <p class="text-danger small" id="email-error"></p>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+                            <label for="password">Contraseña</label>
+                            <p class="text-danger small" id="password-error"></p>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="repetir-password" placeholder="Repetir contraseña" required>
+                            <label for="repetir-password">Repetir contraseña</label>
+                            <p class="text-danger small" id="repetir-password-error"></p>
+                        </div>
+
+                        <button class="w-100 btn btn-lg btn-success" type="submit">Registrarse</button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">¿Ya tienes una cuenta?</p>
+                        <a class="w-100 btn btn-outline-secondary" href="../index.html">Iniciar Sesión</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="register.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

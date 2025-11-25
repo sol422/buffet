@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap');
+
+/*---- ESTILO BARRA CARD DE COMIDA ----*/
+.card {
+    display: flex;
+    overflow: hidden;
+    flex-direction: column;
+    height: 186px;
+    width: 271px;
+    border-radius: 10px;
+    border: solid 1px #a0a893; /* verde musgo claro */
+    background-color: #f5f7f1; /* verde muy claro, casi blanco */
+    box-shadow: 0 4px 8px rgba(42, 61, 45, 0.2); /* sombra con verde musgo oscuro */
+    font-family: 'Cormorant Garamond', serif;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    color: #26763a; /* verde musgo oscuro */
+    font-size: 14px;
+    margin: 0;
+    padding: 0 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+}
+
+.card-image {
+    height: 50%;
+}
+
+.food-type {
+    margin-top: 0;
+    margin-left: 8px;
+    padding: 2px 6px;
+    color: #49653b;
+}
+
+.quantity-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    width: 100%;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.quantity-label {
+    font-size: 12px;
+    margin-left: 5px;
+    color: #49653b;
+    font-weight: 600;
+}
+
+.button-card-container {
+    display: flex;
+    align-items: center;
+}
+
+.button-card {
+    width: 22px;
+    height: 22px;
+    border: none;
+    background-color: #667a4a; /* verde musgo medio */
+    color: #f5f7f1; /* casi blanco */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    margin: 0 6px; 
+    font-weight: 700;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.button-card:hover {
+    background-color: #26763a; /* verde musgo oscuro */
+}
+
+.cantidad {
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+    color: #35492d;
+    min-width: 18px;
+    text-align: center;
+}
+
+.food-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 6px; 
+    text-align: left;
+    margin-left: 8px;
+    color: #35492d;
+    font-family: 'Cormorant Garamond', serif;
+}
+
+.food-description {
+    font-size: 14px;
+    color: #627553; /* verde musgo grisáceo */
+    margin-top: 5px;
+    padding-left: 8px;
+    padding-bottom: 6px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+}
+
+.separator {
+    border: none;
+    border-top: 1px solid #a0a893;
+    margin: 4px 0;
+    width: 100%;
+}

@@ -1,0 +1,214 @@
+/* --- ESTILOS BASE Y HEADER (PARA CONSISTENCIA) --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+:root {
+    --color-dark-green: #26763a;
+    --color-green: #4d7354;
+    --color-light-green: #a0a893;
+    --color-bg: #f5f7f1;
+    --color-white: #ffffff;
+    --color-text: #333;
+    --color-border: #ccc;
+    --color-error: #c0392b;
+    --font-main: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    min-height: 100vh;
+}
+
+a { text-decoration: none; color: inherit; }
+
+header {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    background-color: var(--color-dark-green);
+    color: var(--color-white);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.logo { height: 40px; margin-right: 1rem; }
+header h2 { font-size: 1.8rem; flex-grow: 1; }
+.navbar ul { display: flex; list-style: none; }
+.navbar li { margin-left: 2rem; }
+.navbar a { transition: color 0.2s; }
+.navbar a:hover { color: var(--color-light-green); }
+
+/* --- ESTILOS DEL FORMULARIO --- */
+main {
+    padding: 2rem 1rem;
+}
+
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-card {
+    background-color: var(--color-white);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.form-card h1 {
+    text-align: center;
+    color: var(--color-dark-green);
+    margin-bottom: 0.5rem;
+}
+
+.form-card p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.span-2 {
+    grid-column: span 2;
+}
+
+.form-group label, .dias-group legend {
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-green);
+    box-shadow: 0 0 0 3px rgba(77, 115, 84, 0.2);
+}
+
+textarea {
+    resize: vertical;
+    font-family: var(--font-main);
+}
+
+.error-message {
+    color: var(--color-error);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    height: 1rem; /* Para que no mueva el layout */
+    text-align: left;
+}
+
+/* --- ESTILOS PARA CHECKBOXES DE DÍAS --- */
+.dias-group {
+    border: none;
+    margin-top: 1.5rem;
+}
+
+.dias-checkboxes {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.dias-checkboxes div {
+    flex-grow: 1;
+}
+
+.dias-checkboxes input[type="checkbox"] {
+    display: none; /* Ocultamos el checkbox real */
+}
+
+.dias-checkboxes label {
+    display: block;
+    text-align: center;
+    padding: 10px;
+    border: 2px solid var(--color-border);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    line-height: 25px; /* Centrado vertical */
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s ease-in-out;
+    margin: 0 auto;
+}
+
+.dias-checkboxes input[type="checkbox"]:checked + label {
+    background-color: var(--color-dark-green);
+    color: var(--color-white);
+    border-color: var(--color-dark-green);
+}
+
+.dias-checkboxes label:hover {
+    border-color: var(--color-green);
+}
+
+/* --- ESTILOS PARA LOS BOTONES --- */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-bg);
+}
+
+.btn-agregar, .btn-cancelar {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-agregar {
+    background-color: var(--color-dark-green);
+    color: var(--color-white);
+}
+
+.btn-agregar:hover {
+    background-color: var(--color-green);
+}
+
+.btn-cancelar {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.btn-cancelar:hover {
+    background-color: #bdbdbd;
+}
+
+/* ... todos tus estilos anteriores ... */
+
+/* --- NUEVO ESTILO AÑADIDO --- */
+input[readonly], textarea[readonly] {
+    background-color: #f0f0f0; /* Un gris claro para indicar que no es editable */
+    cursor: not-allowed;
+}

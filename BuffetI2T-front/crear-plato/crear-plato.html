@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crear Nuevo Plato</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="crear-plato.css" /> </head>
+<body class="bg-light">
+    <admin-header></admin-header>
+
+    <main class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-body p-4 p-md-5">
+                        <h1 class="card-title text-center mb-4">Crear Nuevo Plato</h1>
+                        <p class="text-center text-muted mb-4">Añade un nuevo plato al catálogo general del buffet.</p>
+                        
+                        <form id="formCrearPlato" onsubmit="event.preventDefault(); guardarPlato();">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="nombre" placeholder="Nombre del Plato" required />
+                                <label for="nombre">Nombre del Plato</label>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-8 form-floating">
+                                    <input type="text" class="form-control" id="categoria" placeholder="Categoría" required />
+                                    <label for="categoria">Categoría</label>
+                                </div>
+                                <div class="col-md-4 form-floating">
+                                    <input type="number" class="form-control" id="stock" value="100" required />
+                                    <label for="stock">Stock Inicial</label>
+                                </div>
+                            </div>
+
+                            <div class="form-floating mb-4">
+                                <textarea id="descripcion" class="form-control" placeholder="Describe el plato..." style="height: 120px" required></textarea>
+                                <label for="descripcion">Descripción</label>
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a class="btn btn-secondary" href="../perfil-administrador/perfil-administrador.html">Cancelar</a>
+                                <button type="submit" class="btn btn-success">Guardar Plato</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../components/navbar-admin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="crear-plato.js"></script>
+</body>
+</html>
