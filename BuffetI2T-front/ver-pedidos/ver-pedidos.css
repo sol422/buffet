@@ -199,3 +199,40 @@ h1 {
 .detalle-platos span {
     color: #95a5a6;
 }
+
+/* ========================================================== */
+/* NUEVO DISEÑO RESUMEN POR EMPLEADO                         */
+/* ========================================================== */
+
+.empleado-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #2980b9;
+}
+
+.empleado-header {
+    font-size: 1.1em;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.empleado-dia {
+    margin-bottom: 12px;
+    padding-left: 10px;
+    border-left: 2px dashed #dfe6e9;
+}
+
+.empleado-dia-titulo {
+    font-weight: 700;
+    color: #3498db;
+    margin-bottom: 5px;
+}
+
+.empleado-item {
+    color: #7f8c8d;
+    font-size: 0.95em;
+    margin-left: 8px;
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Métodos de Pago - Mi Cuenta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../perfil-usuario/perfil-usuario.css" /> 
+</head>
+<body class="bg-light">
+    <div class="d-flex" id="wrapper">
+        
+        <nav class="bg-white border-end" id="sidebar-wrapper">
+            <div class="sidebar-heading p-4 text-center">
+                <img src="../../img/buffet_logo.png" alt="Logo" width="40" class="me-2">
+                <span class="fw-bold">BUFFET</span>
+            </div>
+            
+            <div class="p-4 border-bottom text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#26763E" class="bi bi-person-circle mb-2" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.516 13.56 5.253 14 8 14s4.484-.44 5.468-1.63A7 7 0 0 0 8 1"/>
+                </svg>
+                <h6 class="mb-0 text-dark" id="user-greeting">Hola, Usuario</h6>
+                <p class="small text-muted mb-0" id="user-email">[Correo]</p>
+            </div>
+            
+            <div class="list-group list-group-flush mt-3">
+                <h6 class="sidebar-section-title px-3 pt-3 pb-1 text-muted">MENÚ Y PEDIDOS</h6>
+                <a href="../perfil-usuario/perfil-usuario.html" class="list-group-item list-group-item-action p-3" id="menu-link">🍴 Menú Semanal</a>
+                <a href="../perfil-usuario/perfil-usuario.html" class="list-group-item list-group-item-action p-3" id="favoritos-link">★ Mis Favoritos</a>
+                <a href="../historial/historial-usuario.html" class="list-group-item list-group-item-action p-3" id="historial-detalle-link">📜 Historial de Pedidos</a>
+                
+                <h6 class="sidebar-section-title px-3 pt-3 pb-1 text-muted mt-3">CONFIGURACIÓN</h6>
+                <a href="../modificar-perfil-usuario/modificar-perfil-usuario.html" class="list-group-item list-group-item-action p-3" id="modificar-link">⚙️ Modificar Perfil</a>
+                <a href="metodos-de-pago.html" class="list-group-item list-group-item-action p-3 active" id="pagos-link">💳 Métodos de Pago</a>
+                <a href="../configuracion-notificaciones/configuracion-notificaciones.html" class="list-group-item list-group-item-action p-3" id="notificaciones-link">🔔 Notificaciones</a>
+
+                <h6 class="sidebar-section-title px-3 pt-3 pb-1 text-muted mt-3">SOPORTE</h6>
+                <a href="mailto:soporte@buffet.com" class="list-group-item list-group-item-action p-3" id="soporte-link">💬 Contactar Soporte</a>
+                    
+                <a href="#" onclick="cerrarSesion()" class="list-group-item list-group-item-action p-3 text-danger mt-3 fw-bold">🚪 CERRAR SESIÓN</a>
+                <a href="#" onclick="darDeBaja()" class="list-group-item list-group-item-action p-3 text-danger mt-3">🔥 Darme de Baja</a>
+            </div>
+        </nav>
+
+        <div id="page-content-wrapper">
+            <header class="navbar navbar-light bg-white border-bottom shadow-sm">
+                <div class="container-fluid">
+                    <h5 class="mb-0">Gestión de Pago</h5>
+                </div>
+            </header>
+
+            <div class="container-fluid p-4">
+                <h1 class="mt-4 mb-3">💳 Métodos de Pago</h1>
+                <p class="text-muted">Administra tus tarjetas de crédito o débito para realizar pedidos de forma rápida.</p>
+
+                <div class="card shadow-sm mb-3 border-primary" id="card-1234">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-0">Visa Débito **** 1234 
+                                    <span class="badge bg-primary ms-2">Predeterminado</span>
+                                </h5>
+                                <p class="text-muted small mb-0">Vence 12/2028</p>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary me-2" id="edit-1234">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger" id="delete-1234">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-3" id="card-5678">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-0">Mastercard Crédito **** 5678</h5>
+                                <p class="text-muted small mb-0">Vence 06/2026</p>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary me-2" id="edit-5678">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger" id="delete-5678">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                <button class="btn btn-success w-100" id="addPaymentBtn">+ Añadir Nuevo Método de Pago</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-labelledby="editPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPaymentModalLabel">Editar Tarjeta: <span id="modalCardTitle"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="modalCardId">
+                        <div class="mb-3">
+                            <label for="modalCardExpiry" class="form-label">Fecha de Vencimiento (MM/AAAA)</label>
+                            <input type="text" class="form-control" id="modalCardExpiry" required placeholder="MM/AAAA">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="modalCardDefault">
+                            <label class="form-check-label" for="modalCardDefault">
+                                Establecer como Predeterminada
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveChangesBtn">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="addPaymentModalLabel">➕ Añadir Nuevo Método</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="newMethodType" class="form-label">Tipo de Método de Pago</label>
+                        <select class="form-select" id="newMethodType">
+                            <option value="card" selected>Tarjeta de Crédito / Débito</option>
+                            <option value="cash">Efectivo al Recibir</option>
+                        </select>
+                    </div>
+
+                    <div id="cardFields">
+                        <div class="mb-3">
+                            <label for="newCardNumber" class="form-label">Número de Tarjeta (últimos 4 dígitos)</label>
+                            <input type="text" class="form-control" id="newCardNumber" maxlength="4" placeholder="XXXX" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newCardExpiry" class="form-label">Vencimiento (MM/AAAA)</label>
+                            <input type="text" class="form-control" id="newCardExpiry" placeholder="MM/AAAA" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newCardType" class="form-label">Marca</label>
+                            <select class="form-select" id="newCardType">
+                                <option value="Visa" selected>Visa</option>
+                                <option value="Mastercard">Mastercard</option>
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="setNewDefault">
+                            <label class="form-check-label" for="setNewDefault">Establecer como Predeterminada</label>
+                        </div>
+                    </div>
+
+                    <div id="cashFields" style="display:none;">
+                        <p class="alert alert-info">Pagar en **Efectivo** es una opción que se selecciona durante la confirmación final del pedido y **no se almacena** permanentemente aquí. Al añadirla, se asegura que la opción esté disponible.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="saveNewMethodBtn">Añadir Método</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../perfil-usuario/perfil-usuario.js"></script>
+    <script src="metodos-de-pago.js"></script> 
+</body>
+</html>

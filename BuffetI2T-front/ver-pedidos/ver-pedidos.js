@@ -10,72 +10,107 @@ document.addEventListener('DOMContentLoaded', () => {
    ========================================================== */
 
 async function cargarResumenDeEmpleados() {
-    const container = document.getElementById('resumen-pedidos-empleados');
-    container.innerHTML = '<p class="text-center text-muted">Cargando resumen de pedidos de empleados...</p>';
+    const container = document.getElementById("resumen-pedidos-empleados");
+    container.innerHTML = '<p class="text-center text-muted">Cargando...</p>';
 
     try {
-        const response = await fetch('http://localhost:3000/api/administrador/pedidos/resumen-semanal');
+        const response = await fetch(
+            "http://localhost:3000/api/administrador/pedidos/resumen-semanal"
+        );
 
         if (!response.ok) {
-            throw new Error(`No se pudo cargar el resumen de empleados. (Error: ${response.status})`);
+            throw new Error(`Error al cargar resumen (${response.status})`);
         }
 
         const pedidos = await response.json();
 
         if (pedidos.length === 0) {
-            container.innerHTML = '<p class="placeholder">Aún no se ha confirmado ningún pedido de empleado para la semana actual.</p>';
+            container.innerHTML = '<p class="placeholder">No hay pedidos esta semana.</p>';
             return;
         }
 
-        const resumenPlatos = {};
+        /* ==================================================
+           ESTRUCTURA NUEVA:
+           {
+             empleadoNombre: {
+                Lunes: [{ plato, cantidad }],
+                Martes: [{ plato, cantidad }],
+                ...
+             }
+           }
+        ================================================== */
 
-        pedidos.forEach(item => {
-            const key = item.nombre_plato;
-            if (!resumenPlatos[key]) {
-                resumenPlatos[key] = {
-                    nombre: item.nombre_plato,
-                    cantidad_total: 0,
-                    pedidos_individuales: []
-                };
-            }
+        const resumen = {};
 
-            resumenPlatos[key].cantidad_total += item.cantidad;
-            resumenPlatos[key].pedidos_individuales.push(
-                `${item.nombre_empleado} ${item.apellido_empleado} (pidió ${item.cantidad})`
-            );
+        pedidos.forEach(p => {
+            const empleado = p.nombre_empleado;
+            const diaNombre = convertirDia(p.dia); // función abajo
+
+            if (!resumen[empleado]) resumen[empleado] = {};
+            if (!resumen[empleado][diaNombre]) resumen[empleado][diaNombre] = [];
+
+            resumen[empleado][diaNombre].push({
+                plato: p.nombre_plato,
+                cantidad: p.cantidad
+            });
         });
 
-        let html = `
-            <p class="lead text-dark">Total de platos a preparar en la semana activa.</p>
-            <table class="resumen-table">
-                <thead>
-                    <tr>
-                        <th>Plato</th>
-                        <th class="text-center">Cantidad Total</th>
-                        <th>Detalle</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+        /* ==========================
+           GENERAR HTML LIMPIO
+        ========================== */
 
-        for (const plato in resumenPlatos) {
-            const data = resumenPlatos[plato];
+        let html = `<div class="empleado-resumen-list">`;
+
+        Object.keys(resumen).forEach(empleado => {
             html += `
-                <tr>
-                    <td>${data.nombre}</td>
-                    <td class="cantidad-total">${data.cantidad_total}</td>
-                    <td class="detalle-pedidos-empleados">${data.pedidos_individuales.join('\n')}</td>
-                </tr>
+                <div class="empleado-card">
+                    <div class="empleado-header">
+                        👤 <strong>${empleado}</strong>
+                    </div>
             `;
-        }
 
-        html += `</tbody></table>`;
+            Object.keys(resumen[empleado]).forEach(dia => {
+                html += `
+                    <div class="empleado-dia">
+                        <div class="empleado-dia-titulo">📅 ${dia}</div>
+                `;
+
+                resumen[empleado][dia].forEach(p => {
+                    html += `
+                        <div class="empleado-item">
+                            • ${p.plato} — <strong>${p.cantidad}</strong>
+                        </div>
+                    `;
+                });
+
+                html += `</div>`;
+            });
+
+            html += `</div>`;
+        });
+
+        html += `</div>`;
+
         container.innerHTML = html;
 
-    } catch (error) {
-        console.error("Error al cargar resumen empleados:", error);
-        container.innerHTML = `<p style="color:red;">${error.message}</p>`;
+    } catch (err) {
+        container.innerHTML = `<p style="color:red;">${err.message}</p>`;
+        console.error(err);
     }
+}
+
+/* ==========================================================
+   Convierte número de día → nombre
+   ========================================================== */
+function convertirDia(n) {
+    const dias = {
+        1: "Lunes",
+        2: "Martes",
+        3: "Miércoles",
+        4: "Jueves",
+        5: "Viernes"
+    };
+    return dias[n] || "Día desconocido";
 }
 
 /* ==========================================================

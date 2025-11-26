@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Notificaciones - Mi Cuenta</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../perfil-usuario/perfil-usuario.css" /> 
+</head>
+<body class="bg-light">
+    <div class="d-flex" id="wrapper">
+        
+        <nav class="bg-white border-end" id="sidebar-wrapper">
+            <div class="sidebar-heading p-4 text-center">
+                <img src="../../img/buffet_logo.png" alt="Logo" width="40" class="me-2">
+                <span class="fw-bold">BUFFET</span>
+            </div>
+            
+            <div class="p-4 border-bottom text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#26763E" class="bi bi-person-circle mb-2" viewBox="0 0 16 16">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.516 13.56 5.253 14 8 14s4.484-.44 5.468-1.63A7 7 0 0 0 8 1"/>
+                </svg>
+                <h6 class="mb-0 text-dark" id="user-greeting">Hola, Usuario</h6>
+                <p class="small text-muted mb-0" id="user-email">[Correo]</p>
+            </div>
+            
+            <div class="list-group list-group-flush mt-3">
+                <h6 class="sidebar-section-title px-3 pt-3 pb-1 text-muted">MENÚ Y PEDIDOS</h6>
+                <a href="../perfil-usuario/perfil-usuario.html" class="list-group-item list-group-item-action p-3" id="menu-link">🍴 Menú Semanal</a>
+                <a href="../perfil-usuario/perfil-usuario.html" class="list-group-item list-group-item-action p-3" id="favoritos-link">★ Mis Favoritos</a>
+                <a href="../historial/historial-usuario.html" class="list-group-item list-group-item-action p-3" id="historial-detalle-link">📜 Historial de Pedidos</a>
+                
+                <h6 class="sidebar-section-title px-3 pt-3 pb-1 text-muted mt-3">CONFIGURACIÓN</h6>
+                <a href="../modificar-perfil-usuario/modificar-perfil-usuario.html" class="list-group-item list-group-item-action p-3" id="modificar-link">⚙️ Modificar Perfil</a>
+                <a href="../metodos-de-pago/metodos-de-pago.html" class="list-group-item list-group-item-action p-3" id="pagos-link">💳 Métodos de Pago</a>
+                <a href="configuracion-notificaciones.html" class="list-group-item list-group-item-action p-3 active" id="notificaciones-link">🔔 Notificaciones</a>
+
+                <h6 class="sidebar-section-title px-3 pt-3 pb-1 text-muted mt-3">SOPORTE</h6>
+                <a href="mailto:soporte@buffet.com" class="list-group-item list-group-item-action p-3" id="soporte-link">💬 Contactar Soporte</a>
+                    
+                <a href="#" onclick="cerrarSesion()" class="list-group-item list-group-item-action p-3 text-danger mt-3 fw-bold">🚪 CERRAR SESIÓN</a>
+                <a href="#" onclick="darDeBaja()" class="list-group-item list-group-item-action p-3 text-danger mt-3">🔥 Darme de Baja</a>
+            </div>
+        </nav>
+
+        <div id="page-content-wrapper">
+            <header class="navbar navbar-light bg-white border-bottom shadow-sm">
+                <div class="container-fluid">
+                    <h5 class="mb-0">Configuración</h5>
+                </div>
+            </header>
+
+            <div class="container-fluid p-4">
+                <h1 class="mt-4 mb-3">🔔 Configuración de Notificaciones</h1>
+                <p class="text-muted">Elige qué tipos de avisos quieres recibir.</p>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header fw-bold">Alertas de Pedidos</div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="switchConfirmacion" checked>
+                            <label class="form-check-label" for="switchConfirmacion">Confirmación de Pedido</label>
+                            <small class="text-muted d-block">Recibe una notificación inmediata al finalizar tu orden.</small>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="switchEstado" checked>
+                            <label class="form-check-label" for="switchEstado">Actualizaciones de Estado del Pedido</label>
+                            <small class="text-muted d-block">Avisos cuando el plato está en preparación o listo para recoger/envío.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header fw-bold">Alertas de Contenido y Promociones</div>
+                    <div class="card-body">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="switchMenuNuevo" checked>
+                            <label class="form-check-label" for="switchMenuNuevo">Publicación del Nuevo Menú Semanal</label>
+                            <small class="text-muted d-block">Sé el primero en saber qué platos habrá la próxima semana.</small>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="switchOfertas">
+                            <label class="form-check-label" for="switchOfertas">Ofertas y Promociones</label>
+                            <small class="text-muted d-block">Recibe descuentos y ofertas exclusivas.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary disabled" disabled>Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../perfil-usuario/perfil-usuario.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

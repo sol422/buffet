@@ -39,13 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderFavoritos();
     });
 
-    // 4. Implementación de Placeholders para las nuevas secciones
-    // Note: Usamos confirm/alert para evitar problemas con la ejecución en iFrames.
-    document.getElementById("preferencias-link").addEventListener("click", (e) => { e.preventDefault(); alert("🥦 Preferencias dietéticas: Sección en desarrollo."); });
-    document.getElementById("pagos-link").addEventListener("click", (e) => { e.preventDefault(); alert("💳 Pagos: Sección en desarrollo."); });
-    document.getElementById("notificaciones-link").addEventListener("click", (e) => { e.preventDefault(); alert("🔔 Notificaciones: Sección en desarrollo."); });
-    document.getElementById("lealtad-link").addEventListener("click", (e) => { e.preventDefault(); alert("🏅 Programa de Lealtad: Sección en desarrollo."); });
-
+    
     
     fetchMenuCompleto();
     actualizarResumen();
