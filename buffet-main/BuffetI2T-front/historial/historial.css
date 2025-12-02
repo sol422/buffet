@@ -1,0 +1,29 @@
+body {
+    background-color: #f8f9fa; /* Fondo gris claro de Bootstrap */
+}
+
+/* Banner superior */
+.banner {
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../img/banner.jpg'); /* Con overlay oscuro para texto */
+    background-size: cover;
+    background-position: center;
+    color: white; /* Color de texto para el banner */
+}
+
+/* Colores de los componentes de Bootstrap (primarios) */
+.bg-primary {
+    background-color: #26763E !important; /* Tu verde corporativo */
+}
+
+.text-primary {
+    color: #26763E !important;
+}
+
+.btn-primary {
+    background-color: #26763E;
+    border-color: #26763E;
+}
+.btn-primary:hover {
+    background-color: #216033;
+    border-color: #216033;
+}

@@ -1,0 +1,30 @@
+body {
+    background-color: #f8f9fa; /* Fondo gris claro de Bootstrap */
+}
+
+/* Color principal para los botones primarios (Guardar) */
+.btn-primary {
+    background-color: #26763E;
+    border-color: #26763E;
+}
+.btn-primary:hover {
+    background-color: #216033;
+    border-color: #216033;
+}
+
+/*
+  Estilo para los botones de los días (btn-check es una clase de Bootstrap).
+  Cuando el checkbox está seleccionado, el botón se pinta de verde.
+*/
+.btn-check:checked+.btn-outline-success {
+    background-color: #26763E;
+    border-color: #26763E;
+    color: white;
+}
+
+/* Hacemos los botones de los días un poco más anchos y redondos */
+.btn-outline-success {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}

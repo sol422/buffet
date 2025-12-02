@@ -1,0 +1,238 @@
+/* GENERALES Y FONDOS */
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef2f6;
+    margin: 0;
+    color: #2c3e50;
+}
+
+/* CONTENEDOR PRINCIPAL */
+main {
+    max-width: 1200px;
+    margin: 3rem auto;
+    padding: 1rem;
+}
+
+h1 { 
+    text-align: center;
+    color: #34495e; 
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.lead { 
+    text-align: center; 
+    color: #7f8c8d; 
+    margin-bottom: 2rem; 
+}
+
+/* TABS */
+.nav-tabs {
+    border-bottom: 2px solid #bdc3c7;
+    margin-bottom: 2rem;
+}
+.nav-link {
+    color: #7f8c8d;
+    border: none;
+    border-radius: 0;
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.nav-link.active {
+    color: #2c3e50;
+    background-color: transparent;
+    border-bottom: 3px solid #3498db;
+    font-weight: 700;
+}
+.nav-link:hover:not(.active) {
+    color: #3498db;
+}
+
+/* CARD */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(44, 62, 80, 0.08);
+}
+.card-header {
+    background-color: #34495e !important;
+    color: white !important;
+    font-weight: 600;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+/* TABLA BASE */
+.resumen-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.resumen-table th, .resumen-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #ecf0f1;
+    vertical-align: top;
+}
+
+/* HEADER TABLA */
+.resumen-table thead th {
+    background-color: #f4f7f6;
+    color: #34495e;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+}
+.resumen-table thead tr:first-child th:first-child { border-top-left-radius: 8px; }
+.resumen-table thead tr:first-child th:last-child { border-top-right-radius: 8px; }
+
+/* CUERPO TABLA */
+.resumen-table tbody tr {
+    background-color: white;
+    transition: background-color 0.2s;
+}
+.resumen-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Cantidad total */
+.resumen-table td.cantidad-total {
+    font-weight: 700;
+    font-size: 1.3em;
+    text-align: center;
+    color: #e74c3c;
+    vertical-align: middle;
+}
+
+/* DETALLES EMPLEADOS */
+.resumen-table tbody tr td:first-child {
+    font-weight: 600;
+    font-size: 1.05em;
+    color: #2c3e50;
+    width: 35%;
+}
+
+.detalle-pedidos-empleados {
+    font-size: 0.85em;
+    line-height: 1.4;
+    color: #7f8c8d;
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre;
+    padding-left: 10px !important;
+    border-left: 1px dashed #ecf0f1;
+}
+
+/* ========================================================== */
+/* BADGES DE ESTADO */
+/* ========================================================== */
+
+.badge-estado {
+    padding: 0.5em 1em;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 0.85em;
+    text-align: center;
+    display: inline-block;
+}
+
+/* Colores estados */
+.estado-PENDIENTE  { background-color: #f1c40f; color: #333; }
+.estado-PROCESO    { background-color: #3498db; color: white; }
+.estado-FINALIZADO { background-color: #2ecc71; color: white; }
+.estado-CANCELADO  { background-color: #e74c3c; color: white; }
+
+/* ========================================================== */
+/* BOTONES DE ESTADO */
+/* ========================================================== */
+
+.btn-estado {
+    margin: 3px 2px;
+    padding: 6px 10px;
+    font-size: 0.8em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s, opacity 0.2s;
+    white-space: nowrap;
+}
+.btn-estado i { margin-right: 4px; }
+
+/* 🎯 NUEVO — Botón Pendiente */
+.btn-to-PENDIENTE {
+    background-color: #f1c40f;
+    color: #333;
+}
+
+/* Botones existentes */
+.btn-to-PROCESO { background-color: #3498db; color: white; }
+.btn-to-FINALIZADO { background-color: #2ecc71; color: white; }
+.btn-to-CANCELADO { background-color: #e74c3c; color: white; }
+
+/* Hover */
+.btn-estado:hover:not([disabled]) {
+    opacity: 0.9;
+}
+
+/* Deshabilitado */
+.btn-estado[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(60%);
+}
+
+/* Platos en pedidos comunes */
+.detalle-platos {
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+.detalle-platos strong {
+    display: block;
+    margin-top: 3px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+.detalle-platos span {
+    color: #95a5a6;
+}
+
+/* ========================================================== */
+/* NUEVO DISEÑO RESUMEN POR EMPLEADO                         */
+/* ========================================================== */
+
+.empleado-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-left: 4px solid #2980b9;
+}
+
+.empleado-header {
+    font-size: 1.1em;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.empleado-dia {
+    margin-bottom: 12px;
+    padding-left: 10px;
+    border-left: 2px dashed #dfe6e9;
+}
+
+.empleado-dia-titulo {
+    font-weight: 700;
+    color: #3498db;
+    margin-bottom: 5px;
+}
+
+.empleado-item {
+    color: #7f8c8d;
+    font-size: 0.95em;
+    margin-left: 8px;
+}

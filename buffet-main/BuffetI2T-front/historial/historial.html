@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Pedidos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../home/home.css">
+    <link rel="stylesheet" href="../historial/historial.css">
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <main class="container my-5">
+        <div class="p-4 mb-4 bg-primary rounded-3 banner text-white">
+            <div class="container-fluid py-3 text-center">
+                <h1 class="display-5 fw-bold">Historial de Pedidos</h1>
+                <p class="fs-4">Aquí puedes ver un resumen de todos los pedidos confirmados.</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div id="historial-pedidos" class="d-grid gap-4">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Cargando historial...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../components/navbar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inyectar navbar
+            const headerContainer = document.getElementById('navbar-container');
+            headerContainer.innerHTML = '<main-header></main-header>';
+            cargarHistorialPedidos();
+        });
+
+        function toLocalImagePath(imgUrl) {
+            if (!imgUrl) return '../img/default_plato.jpg';
+            if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) return imgUrl;
+            // si vino solo el nombre o ruta relativa, usar ../img/<filename>
+            const filename = imgUrl.split('/').pop();
+            return `../img/${filename}`;
+        }
+
+        async function cargarHistorialPedidos() {
+            const container = document.getElementById('historial-pedidos');
+            const usuarioStr = localStorage.getItem('usuario');
+            if (!usuarioStr) {
+                container.innerHTML = '<div class="alert alert-danger text-center">No se pudo identificar al usuario. Inicia sesión nuevamente.</div>';
+                return;
+            }
+            const usuario = JSON.parse(usuarioStr);
+            const rol = (localStorage.getItem('rol') || '').toUpperCase();
+
+            try {
+                let url;
+                // Rutas backend:
+                // - Empleado (semanal): /api/pedido/empleado/pedidos/:id
+                // - Usuario (personal/express): /api/usuario/historial-personal/:id
+                if (rol === 'USUARIO') {
+                    url = `http://localhost:3000/api/usuario/historial-personal/${usuario.id}`;
+                } else {
+                    url = `http://localhost:3000/api/pedido/empleado/pedidos/${usuario.id}`;
+                }
+
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('No se pudo cargar el historial.');
+                const historial = await response.json();
+
+                if (!Array.isArray(historial) || historial.length === 0) {
+                    container.innerHTML = `
+                        <div class="alert alert-info text-center">
+                            <h4>Aún no has confirmado ningún pedido.</h4>
+                            <p>Tus pedidos confirmados aparecerán aquí.</p>
+                            <a href="../home/home.html" class="btn btn-outline-primary mt-2">Ir al Menú</a>
+                        </div>`;
+                    return;
+                }
+
+                // Detectar forma de los datos: pedidos personales (usuario) tienen campo estado_pedido
+                const esPersonal = historial[0].hasOwnProperty('estado_pedido');
+
+                if (esPersonal) {
+                    // Render simple: listar pedidos personales agrupados por id_pedido
+                    const pedidosAgrupados = {};
+                    historial.forEach(item => {
+                        const id = item.id_pedido;
+                        if (!pedidosAgrupados[id]) {
+                            pedidosAgrupados[id] = {
+                                id,
+                                fechaRaw: new Date(item.fecha_pedido),
+                                fecha: new Date(item.fecha_pedido).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                                estado: item.estado_pedido,
+                                items: []
+                            };
+                        }
+                        pedidosAgrupados[id].items.push(item);
+                    });
+
+                    let html = '';
+                    Object.values(pedidosAgrupados).sort((a,b) => b.fechaRaw - a.fechaRaw).forEach(pedido => {
+                        html += `
+                            <div class="card shadow-sm border-0 mb-3">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Pedido #${pedido.id}</strong>
+                                        <small class="ms-2 text-muted">(${pedido.fecha})</small>
+                                    </div>
+                                    <div>
+                                        <span class="badge ${pedido.estado === 'CANCELADO' ? 'bg-danger' : 'bg-success'}">${pedido.estado}</span>
+                                    </div>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                        `;
+                        pedido.items.forEach(item => {
+                            const imgPath = toLocalImagePath(item.imagen_url);
+                            html += `
+                                <li class="list-group-item d-flex align-items-center">
+                                    <img src="${imgPath}" alt="${item.nombre_plato}" onerror="this.src='../img/default_plato.jpg'" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0 text-capitalize">${item.nombre_plato}</h6>
+                                        <small class="text-muted">${item.categoria || ''}</small>
+                                    </div>
+                                    <span class="badge bg-light text-dark border">Cant: ${item.cantidad}</span>
+                                </li>
+                            `;
+                        });
+
+                        html += `
+                                </ul>
+                                <div class="card-footer text-end bg-white">
+                                    <button class="btn btn-sm btn-primary me-2" onclick="repetirPedido(${pedido.id}, 'PERSONAL')">🔄 Repetir pedido</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="cancelarPedidoPersonal(${pedido.id})">Cancelar</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = html;
+                    return;
+                }
+
+                // Si llegamos acá: datos de pedidos semanales (empleado)
+                // Agrupar items por id_pedido
+                const pedidosMap = {};
+                historial.forEach(item => {
+                    const idPedido = item.id_pedido;
+                    if (!pedidosMap[idPedido]) {
+                        pedidosMap[idPedido] = {
+                            id: idPedido,
+                            fechaRaw: new Date(item.fecha_pedido),
+                            fecha: new Date(item.fecha_pedido).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+                            semana: item.semana,
+                            mes: item.mes,
+                            items: []
+                        };
+                    }
+                    pedidosMap[idPedido].items.push(item);
+                });
+
+                // Agrupar por semana-mes
+                const pedidosPorSemana = {};
+                Object.values(pedidosMap).forEach(p => {
+                    const key = `${p.semana || 0}-${p.mes || ''}`;
+                    if (!pedidosPorSemana[key]) pedidosPorSemana[key] = [];
+                    pedidosPorSemana[key].push(p);
+                });
+
+                const clavesOrdenadas = Object.keys(pedidosPorSemana).sort((a,b) => {
+                    const [semA] = a.split('-'); const [semB] = b.split('-');
+                    return parseInt(semB || 0) - parseInt(semA || 0);
+                });
+
+                let html = '';
+                clavesOrdenadas.forEach(clave => {
+                    const pedidos = pedidosPorSemana[clave];
+                    const [semana, mes] = clave.split('-');
+                    html += `<h4 class="mt-4 border-bottom pb-2 fw-bold text-primary">Semana ${semana} - ${mes}</h4>`;
+
+                    pedidos.sort((a, b) => b.id - a.id).forEach(pedido => {
+                        // cancelable si < 1 hora
+                        const ahora = new Date();
+                        const diferenciaMs = ahora - pedido.fechaRaw;
+                        const esCancelable = diferenciaMs < (60 * 60 * 1000);
+                        const btnCancelar = esCancelable ? `<button class="btn btn-sm btn-outline-danger me-2" onclick="cancelarPedido(${pedido.id})">Cancelar Pedido</button>` : '';
+
+                        html += `
+                            <div class="card shadow-sm border-0 mb-3">
+                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                    <span><strong>Pedido #${pedido.id}</strong> <small class="ms-2 opacity-75">(${pedido.fecha})</small></span>
+                                    <span class="badge bg-success">Confirmado</span>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                        `;
+                        pedido.items.forEach(item => {
+                            const imgPath = toLocalImagePath(item.imagen_url);
+                            html += `
+                                <li class="list-group-item d-flex align-items-center">
+                                    <img src="${imgPath}" alt="${item.nombre_plato}" onerror="this.src='../img/default_plato.jpg'" class="rounded-circle me-3" style="width:50px;height:50px;object-fit:cover;">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0 text-capitalize">${item.nombre_plato}</h6>
+                                        <small class="text-muted">${item.categoria || ''}</small>
+                                    </div>
+                                    <span class="badge bg-light text-dark border">Cant: ${item.cantidad}</span>
+                                </li>
+                            `;
+                        });
+
+                        html += `
+                                </ul>
+                                <div class="card-footer text-end bg-white">
+                                    ${btnCancelar}
+                                    <button class="btn btn-sm btn-primary" onclick="repetirPedido(${pedido.id}, 'SEMANAL')">🔄 Repetir pedido</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<div class="alert alert-danger text-center">Hubo un error al cargar tu historial. Asegúrate de que el servidor esté activo.</div>`;
+            }
+        }
+
+        // Repetir pedido (soporta SEMANAL y PERSONAL)
+        async function repetirPedido(idPedido, tipo = 'SEMANAL') {
+            if (!confirm("¿Cargar estos platos en tu carrito actual? Se reemplazará cualquier selección previa.")) return;
+
+            try {
+                let url;
+                if (tipo === 'PERSONAL') {
+                    url = `http://localhost:3000/api/pedido/personal/${idPedido}`; // nueva ruta backend (see pedido.js)
+                } else {
+                    url = `http://localhost:3000/api/pedido/${idPedido}`;
+                }
+
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Error al obtener datos del pedido.');
+                const itemsAnteriores = await response.json();
+
+                const nuevaSeleccion = {};
+                itemsAnteriores.forEach(item => {
+                    const dia = item.nombre_dia || item.nombre_dia === null ? (item.nombre_dia || 'EXPRESS') : (item.nombre_dia || 'EXPRESS');
+                    const clave = `${dia}-${item.id_item_menu || item.id_item_menu}`;
+                    nuevaSeleccion[clave] = {
+                        id: item.id_item_menu || item.id_item,
+                        nombre: item.nombre || item.nombre_plato,
+                        imagen_url: item.imagen_url || item.imagen,
+                        nombre_dia: dia,
+                        cantidad: item.cantidad || 1,
+                        id_dia: item.id_dia || null,
+                        tipo: (item.id_dia ? 'SEMANAL' : 'EXPRESS')
+                    };
+                });
+
+                localStorage.setItem('pedidoActual', JSON.stringify(nuevaSeleccion));
+                window.location.href = '../home/home.html';
+
+            } catch (error) {
+                console.error(error);
+                alert("No se pudo cargar el pedido para repetir.");
+            }
+        }
+
+        // Cancelar pedido semanal (DELETE /api/pedido/:id)
+        async function cancelarPedido(idPedido) {
+            if (!confirm("¿Estás seguro de cancelar este pedido? Esta acción es irreversible.")) return;
+            try {
+                const response = await fetch(`http://localhost:3000/api/pedido/${idPedido}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert("Pedido cancelado y stock repuesto exitosamente.");
+                    cargarHistorialPedidos();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || "No se pudo cancelar el pedido. Puede que haya pasado el tiempo límite.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error de conexión al intentar cancelar.");
+            }
+        }
+
+        // Cancelar pedido personal (PUT /api/usuario/pedido-personal/estado/:id)
+        async function cancelarPedidoPersonal(idPedido) {
+            if (!confirm("¿Estás seguro de cancelar este pedido personal?")) return;
+            try {
+                const response = await fetch(`http://localhost:3000/api/usuario/pedido-personal/estado/${idPedido}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estado: 'CANCELADO' })
+                });
+                if (response.ok) {
+                    alert("Pedido cancelado con éxito.");
+                    cargarHistorialPedidos();
+                } else {
+                    const data = await response.json();
+                    alert(data.error || "No se pudo cancelar el pedido personal.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error de conexión al intentar cancelar pedido personal.");
+            }
+        }
+    </script>
+</body>
+</html>

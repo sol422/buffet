@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Gestionar Menú Semanal</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="gestionar-menu.css"/>
+</head>
+<body>
+    
+    <admin-header></admin-header>
+
+    <main class="container my-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="display-6 fw-bold">Gestión de Menús</h1>
+                <p class="text-muted mb-0">Crea semanas, asigna platos y publica el menú vigente.</p>
+            </div>
+            <button class="btn btn-success shadow-sm" onclick="crearNuevoMenu()">
+                <i class="bi bi-plus-circle"></i> + Nueva Semana
+            </button>
+        </div>
+
+        <div id="menus-container" class="row g-4">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Cargando menús...</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="modalAsignarPlato" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Asignar Plato al Menú</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="modal-id-menu">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">1. Selecciona el Plato:</label>
+                        <select class="form-select" id="select-platos">
+                            <option value="">Cargando catálogo...</option>
+                        </select>
+                        <div class="form-text">
+                            ¿No encuentras el plato? <a href="../crear-plato/crear-plato.html" target="_blank">Créalo aquí</a>.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">2. Días disponibles:</label>
+                        <div class="d-flex flex-wrap gap-3 p-2 border rounded bg-light" id="container-checks-dias">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" id="check-lunes">
+                                <label class="form-check-label" for="check-lunes">Lunes</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="2" id="check-martes">
+                                <label class="form-check-label" for="check-martes">Martes</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="3" id="check-miercoles">
+                                <label class="form-check-label" for="check-miercoles">Miércoles</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="4" id="check-jueves">
+                                <label class="form-check-label" for="check-jueves">Jueves</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="5" id="check-viernes">
+                                <label class="form-check-label" for="check-viernes">Viernes</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="guardarAsignacion()">Guardar Asignación</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../components/navbar-admin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="gestionar-menu.js"></script>
+</body>
+</html>

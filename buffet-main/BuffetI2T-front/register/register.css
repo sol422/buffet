@@ -1,0 +1,26 @@
+body {
+    background: linear-gradient(to right, #26763E, #2A9D8F); /* Mismo fondo degradado */
+}
+
+.register-card {
+    border-radius: 1rem;
+    border: none;
+}
+
+/* Ajustes para los mensajes de error para que no descuadren el diseño */
+.form-floating p.small {
+    height: 1.2em; /* Le damos una altura fija */
+    margin-top: 0.2rem;
+    padding-left: 0.2rem;
+}
+
+/* Color del botón principal para que coincida con tu marca */
+.btn-success {
+    background-color: #26763E;
+    border-color: #26763E;
+}
+
+.btn-success:hover {
+    background-color: #216033;
+    border-color: #216033;
+}

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buffet - Menú</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="home.css" />
+    <style>
+        .nav-pills .nav-link.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+        .nav-pills .nav-link {
+            color: #495057;
+            background-color: #f8f9fa;
+            margin: 0 5px;
+            transition: all 0.3s;
+        }
+        .fade-in { animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <main class="container-fluid py-4">
+        
+        <div class="row justify-content-center mb-4">
+            <div class="col-lg-6">
+                <ul class="nav nav-pills nav-fill shadow-sm rounded p-2 bg-white" id="menuTabs">
+                    <li class="nav-item">
+                        <button class="nav-link active fw-bold" onclick="cambiarModo('SEMANAL')">
+                            📅 Mi Plan Semanal
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold" onclick="cambiarModo('EXPRESS')">
+                            🚀 Pedido Express (Carta)
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <!-- ========================== SIDEBAR ========================== -->
+            <aside class="col-lg-3 sidebar d-flex flex-column mb-4 mb-lg-0">
+
+                <div id="panel-dias" class="card shadow-sm border-0 mb-3">
+                    <div class="card-body">
+                        <h4 class="h5 mb-3 fw-bold text-primary">Días de Asistencia</h4>
+                        <p class="text-muted small">Elige el día para reservar:</p>
+                        <div class="list-group day-buttons-container mb-3" id="day-buttons-container"></div>
+                    </div>
+                </div>
+
+                <button id="revisarPedidoBtn" class="btn btn-success btn-lg w-100 shadow-sm mb-2">
+                    Confirmar Pedido
+                </button>
+
+                <!-- 🔥 ESTE DIV ERA EL QUE FALTABA (Y ROMPÍA TODO) -->
+                <div id="resumen-pedido-container" class="mt-3"></div>
+
+                <div id="config-link-container" class="text-center mt-2">
+                    <a href="../modificar-perfil/modificar-perfil.html" class="btn btn-outline-secondary btn-sm w-100">
+                        ⚙️ Configurar días
+                    </a>
+                </div>
+
+            </aside>
+
+            <!-- ========================== CONTENIDO ======================== -->
+            <div class="col-lg-9 contenido">
+
+                <div class="p-4 p-md-5 mb-4 rounded text-bg-dark" id="banner-bg"
+                     style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../img/banner.jpg'); background-size: cover; background-position: center;">
+                    <div class="col-md-8">
+                        <h1 class="display-5 fw-bold" id="titulo-seccion">Menú Ejecutivo</h1>
+                        <p class="lead my-3" id="descripcion-seccion">Elige tus almuerzos para la semana.</p>
+                    </div>
+                </div>
+
+                <div class="row g-4" id="menu-container">
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2 text-muted">Cargando...</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="../components/navbar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- ========================== JS COMPLETO Y CORREGIDO ========================== -->
+    <script>
+        let modoActual = "SEMANAL";
+        let diaSeleccionado = "";
+        let seleccionUsuario = {};
+        let menuData = [];
+        let diasDeAsistencia = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const usuarioStr = localStorage.getItem("usuario");
+            if (!usuarioStr) {
+                window.location.href = "../index.html";
+                return;
+            }
+
+            const usuario = JSON.parse(usuarioStr);
+            const guardado = localStorage.getItem('pedidoActual');
+
+            if (guardado) {
+                const parsed = JSON.parse(guardado);
+                const primerItem = Object.values(parsed)[0];
+
+                if (primerItem && primerItem.tipo === 'EXPRESS') {
+                    cambiarModo('EXPRESS', false);
+                    document.querySelectorAll('.nav-link')[1].classList.add('active');
+                    document.querySelectorAll('.nav-link')[0].classList.remove('active');
+                } else {
+                    seleccionUsuario = parsed;
+                }
+            }
+
+            actualizarResumenPedido();
+
+            if (modoActual === 'SEMANAL') fetchMenuSemanal(usuario.id);
+            else fetchMenuExpress();
+
+            document.getElementById("revisarPedidoBtn").addEventListener("click", () => {
+                if (Object.keys(seleccionUsuario).length === 0) {
+                    alert("El carrito está vacío. Selecciona al menos un plato.");
+                    return;
+                }
+                localStorage.setItem('pedidoActual', JSON.stringify(seleccionUsuario));
+                window.location.href = '../modificar-pedido/modificar-pedido.html';
+            });
+        });
+
+        function cambiarModo(nuevoModo, recargar = true) {
+            const tabs = document.querySelectorAll('.nav-link');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            if (nuevoModo === 'SEMANAL') tabs[0].classList.add('active');
+            else tabs[1].classList.add('active');
+
+            if (modoActual !== nuevoModo) {
+                if (Object.keys(seleccionUsuario).length > 0 && recargar) {
+                    if (!confirm("Al cambiar de modo se limpiará tu carrito actual. ¿Continuar?")) {
+                        tabs.forEach(t => t.classList.toggle('active'));
+                        return;
+                    }
+
+                    seleccionUsuario = {};
+                    localStorage.removeItem('pedidoActual');
+                    actualizarResumenPedido();
+                }
+                modoActual = nuevoModo;
+            }
+
+            const panelDias = document.getElementById('panel-dias');
+            const titulo = document.getElementById('titulo-seccion');
+            const desc = document.getElementById('descripcion-seccion');
+            const configLink = document.getElementById('config-link-container');
+
+            if (modoActual === 'SEMANAL') {
+                panelDias.style.display = 'block';
+                configLink.style.display = 'block';
+                titulo.textContent = "📅 Planificación Semanal";
+                desc.textContent = "Reserva tus almuerzos para los días que asistes.";
+
+                if (recargar) {
+                    const usuario = JSON.parse(localStorage.getItem("usuario"));
+                    fetchMenuSemanal(usuario.id);
+                }
+            } else {
+                panelDias.style.display = 'none';
+                configLink.style.display = 'none';
+                titulo.textContent = "🚀 Pedido Express";
+                desc.textContent = "Pide cualquier plato de la carta completa.";
+
+                if (recargar) fetchMenuExpress();
+            }
+        }
+
+        async function fetchMenuSemanal(idUsuario) {
+            const container = document.getElementById("menu-container");
+            container.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2 text-muted">Cargando...</p>
+                </div>`;
+
+            try {
+                const res = await fetch(`http://localhost:3000/api/empleado/menu-actual/${idUsuario}`);
+                menuData = await res.json();
+
+                if(menuData.length > 0) {
+                localStorage.setItem('semanaMenuActual', menuData[0].semana);
+            }
+                const diasUnicos = [...new Set(menuData.map(item => item.nombre_dia))];
+                const orden = ['LUNES','MARTES','MIERCOLES','JUEVES','VIERNES'];
+                diasDeAsistencia = orden.filter(d => diasUnicos.includes(d));
+
+                if (diasDeAsistencia.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-12 text-center mt-5">
+                            <h3 class="text-muted">No hay menú disponible.</h3>
+                            <p>Verifica tu configuración de asistencia.</p>
+                            <a href="../modificar-perfil/modificar-perfil.html" class="btn btn-primary">Configurar</a>
+                        </div>`;
+                    return;
+                }
+
+                if (!diaSeleccionado || !diasDeAsistencia.includes(diaSeleccionado)) {
+                    const hoyIndex = new Date().getDay();
+                    const diasSemana = ['DOMINGO','LUNES','MARTES','MIERCOLES','JUEVES','VIERNES','SABADO'];
+                    const hoyStr = diasSemana[hoyIndex];
+                    diaSeleccionado = diasDeAsistencia.includes(hoyStr) ? hoyStr : diasDeAsistencia[0];
+                }
+
+                actualizarBotonesDias();
+                renderizarTarjetas(menuData.filter(m => m.nombre_dia === diaSeleccionado));
+
+            } catch (e) {
+                container.innerHTML = `<div class="alert alert-danger">Error al cargar menú.</div>`;
+            }
+        }
+
+        function actualizarBotonesDias() {
+            const container = document.getElementById('day-buttons-container');
+            container.innerHTML = '';
+
+            diasDeAsistencia.forEach(dia => {
+                const btn = document.createElement('button');
+                const hasMenu = menuData.some(item => item.nombre_dia === dia);
+
+                btn.className = `list-group-item list-group-item-action 
+                                 ${dia === diaSeleccionado ? 'active' : ''} 
+                                 ${!hasMenu ? 'disabled' : ''}`;
+                btn.innerHTML = `<span class="fw-bold">${dia}</span>`;
+
+                btn.onclick = () => {
+                    if (!hasMenu) return;
+
+                    diaSeleccionado = dia;
+                    renderizarTarjetas(menuData.filter(m => m.nombre_dia === dia));
+
+                    document.querySelectorAll('.day-buttons-container .list-group-item')
+                        .forEach(b => b.classList.remove('active'));
+
+                    btn.classList.add('active');
+                };
+
+                container.appendChild(btn);
+            });
+        }
+
+        async function fetchMenuExpress() {
+            const container = document.getElementById("menu-container");
+            container.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-success"></div>
+                    <p class="mt-2 text-muted">Cargando carta...</p>
+                </div>`;
+
+            try {
+                const res = await fetch(`http://localhost:3000/api/administrador/items`);
+                const data = await res.json();
+
+                const expressData = data.map(x => ({
+                    ...x,
+                    nombre_dia: 'EXPRESS',
+                    imagen_url: `../img/${x.imagen}`
+                }));
+
+                renderizarTarjetas(expressData);
+
+            } catch (err) {
+                container.innerHTML = `<div class="alert alert-danger">Error al cargar carta.</div>`;
+            }
+        }
+
+        function renderizarTarjetas(items) {
+            const container = document.getElementById("menu-container");
+            container.innerHTML = "";
+
+            if (items.length === 0) {
+                container.innerHTML = `<p class="text-center text-muted">No hay platos disponibles.</p>`;
+                return;
+            }
+
+            const procesados = new Set();
+
+            items.forEach(item => {
+                if (procesados.has(item.id)) return;
+                procesados.add(item.id);
+
+                const pref = modoActual === 'SEMANAL' ? diaSeleccionado : 'EXPRESS';
+                const clave = `${pref}-${item.id}`;
+                const cantidad = seleccionUsuario[clave]?.cantidad || 0;
+
+                const stock = item.stock !== undefined ? item.stock : 100;
+                const agotado = stock <= 0;
+
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4 fade-in';
+
+                col.innerHTML = `
+                    <div class="card h-100 shadow-sm 
+                        ${cantidad > 0 ? 'border-success border-2' : ''} 
+                        ${agotado ? 'opacity-50' : ''}">
+                        
+                        <div style="position: relative;">
+                            <img src="${item.imagen_url}" class="card-img-top" 
+                                style="height:200px; object-fit:cover;" 
+                                onerror="this.src='../img/default_plato.jpg'">
+                            <span class="badge bg-dark position-absolute top-0 end-0 m-2">
+                                ${item.categoria}
+                            </span>
+                        </div>
+
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h5 class="card-title text-truncate">${item.nombre}</h5>
+                                ${modoActual === 'SEMANAL' ? `<span class="badge bg-primary">${diaSeleccionado.substring(0,3)}</span>` : ''}
+                            </div>
+
+                            <p class="text-muted small flex-grow-1">${item.descripcion || 'Sin descripción'}</p>
+
+                            <p class="text-danger small mb-2">${agotado ? 'AGOTADO' : 'Stock: ' + stock}</p>
+
+                            <div class="input-group">
+                                <button class="btn btn-outline-secondary" 
+                                    onclick="ajustar('${clave}', -1, ${item.id})" 
+                                    ${agotado ? 'disabled' : ''}>-</button>
+
+                                <input type="text" class="form-control text-center fw-bold" value="${cantidad}" readonly>
+
+                                <button class="btn btn-outline-success" 
+                                    data-item='${JSON.stringify(item)}'
+                                    onclick="ajustar('${clave}', 1, ${item.id})" 
+                                    ${agotado ? 'disabled' : ''}>+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(col);
+            });
+        }
+
+        function ajustar(clave, delta, id) {
+            let itemObj;
+
+            if (modoActual === 'SEMANAL') {
+                itemObj = menuData.find(i => i.id === id);
+            } else {
+                const btn = document.querySelector(`button[onclick="ajustar('${clave}', 1, ${id})"]`);
+                if (btn?.dataset?.item) itemObj = JSON.parse(btn.dataset.item);
+            }
+
+            if (!itemObj) return;
+
+            const actual = seleccionUsuario[clave]?.cantidad || 0;
+            const nuevo = actual + delta;
+
+            const stock = itemObj.stock !== undefined ? itemObj.stock : 100;
+
+            if (delta > 0 && nuevo > stock) {
+                alert(`Solo quedan ${stock} unidades.`);
+                return;
+            }
+
+            if (nuevo <= 0) {
+                delete seleccionUsuario[clave];
+            } else {
+                seleccionUsuario[clave] = {
+                    id: itemObj.id,
+                    nombre: itemObj.nombre,
+                    cantidad: nuevo,
+                    categoria: itemObj.categoria,
+                    imagen_url: itemObj.imagen_url,
+                    tipo: modoActual,
+                    id_dia: modoActual === 'SEMANAL' ? obtenerIdDia(diaSeleccionado) : null,
+                    nombre_dia: modoActual === 'SEMANAL' ? diaSeleccionado : 'EXPRESS'
+                };
+            }
+
+            if (modoActual === 'SEMANAL') {
+                renderizarTarjetas(menuData.filter(m => m.nombre_dia === diaSeleccionado));
+            } else {
+                const card = document.querySelector(`button[onclick="ajustar('${clave}', 1, ${id})"]`).closest('.card');
+                const input = card.querySelector('input');
+                input.value = nuevo;
+
+                if (nuevo > 0) card.classList.add('border-success','border-2');
+                else card.classList.remove('border-success','border-2');
+            }
+
+            actualizarResumenPedido();
+        }
+
+        function actualizarResumenPedido() {
+            const container = document.getElementById('resumen-pedido-container');
+            const items = Object.values(seleccionUsuario);
+
+            if (items.length === 0) {
+                container.innerHTML = `<p class="text-muted small text-center mb-0">Carrito vacío.</p>`;
+                return;
+            }
+
+            let html = `<ul class="list-group list-group-flush small">`;
+
+            items.forEach(x => {
+                html += `
+                    <li class="list-group-item d-flex justify-content-between px-0 py-1 bg-transparent">
+                        <div>${x.nombre}<br>
+                            <span class="text-muted" style="font-size:0.8em">${x.nombre_dia}</span>
+                        </div>
+                        <span class="badge bg-primary">x${x.cantidad}</span>
+                    </li>`;
+            });
+
+            html += `</ul>
+                <div class="text-end mt-2 pt-2 border-top">
+                    <button class="btn btn-sm text-danger btn-link p-0" onclick="limpiar()">Limpiar</button>
+                </div>`;
+
+            container.innerHTML = html;
+        }
+
+        function limpiar() {
+            seleccionUsuario = {};
+            localStorage.removeItem('pedidoActual');
+            actualizarResumenPedido();
+
+            if (modoActual === 'SEMANAL') {
+                renderizarTarjetas(menuData.filter(m => m.nombre_dia === diaSeleccionado));
+            } else {
+                document.querySelectorAll('.border-success').forEach(el => el.classList.remove('border-success','border-2'));
+                document.querySelectorAll('input.form-control').forEach(el => el.value = 0);
+            }
+        }
+
+        function obtenerIdDia(nombre) {
+            const d = { LUNES:1, MARTES:2, MIERCOLES:3, JUEVES:4, VIERNES:5 };
+            return d[nombre] || 0;
+        }
+
+        /* ============================================================
+   🔄 POLLING AUTOMÁTICO DE STOCK Y MENÚ - cada 10 segundos
+   ============================================================ */
+setInterval(async () => {
+    try {
+        if (modoActual === "SEMANAL") {
+
+            const usuario = JSON.parse(localStorage.getItem("usuario"));
+            if (!usuario) return;
+
+            const res = await fetch(`http://localhost:3000/api/empleado/menu-actual/${usuario.id}`);
+            const nuevoMenu = await res.json();
+
+            // Si el menú cambió, actualizamos tarjetas
+            if (JSON.stringify(nuevoMenu) !== JSON.stringify(menuData)) {
+                menuData = nuevoMenu;
+
+                // Si cambió el día o desapareció, elegimos uno válido
+                if (!nuevoMenu.some(x => x.nombre_dia === diaSeleccionado)) {
+                    const dias = [...new Set(nuevoMenu.map(x => x.nombre_dia))];
+                    diaSeleccionado = dias[0] || "";
+                }
+
+                actualizarBotonesDias();
+                renderizarTarjetas(menuData.filter(m => m.nombre_dia === diaSeleccionado));
+            }
+
+        } else if (modoActual === "EXPRESS") {
+
+            const res = await fetch(`http://localhost:3000/api/administrador/items`);
+            const data = await res.json();
+
+            const expressData = data.map(x => ({
+                ...x,
+                nombre_dia: "EXPRESS",
+                imagen_url: `../img/${x.imagen}`
+            }));
+
+            // Si la carta cambió, la actualizamos
+            if (JSON.stringify(expressData) !== JSON.stringify(menuData)) {
+                menuData = expressData;
+                renderizarTarjetas(menuData);
+            }
+        }
+
+    } catch (err) {
+        console.warn("Error en polling:", err);
+    }
+
+}, 10000); // 10 segundos
+
+    </script>
+</body>
+</html>
